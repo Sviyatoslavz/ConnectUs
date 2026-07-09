@@ -1,127 +1,134 @@
 # CLAUDE.md
 
-Guidance for AI assistants (and humans) working in this repository.
+Руководство для AI-ассистентов (и людей), работающих в этом репозитории.
 
-## What this project is
+## Что это за проект
 
-**ConnectUs** is a marketing landing page for an NFC-solutions business based in
-Odesa, Ukraine. It sells NFC magnets, smart business cards, keychains, and
-bundled "venue" packages that let a customer tap a phone to open a mini-site
-(Google reviews, menu, payment, booking). Orders are taken through a Telegram
-bot (`t.me/ConnectUI_bot`).
+**ConnectUs** — маркетинговый лендинг для бизнеса по производству NFC-решений в
+Одессе, Украина. Продаются NFC-магниты, смарт-визитки, брелоки и комплексные
+пакеты «Заклад», которые позволяют клиенту прикоснуться телефоном и открыть
+мини-сайт (отзывы в Google, меню, оплата, запись). Заказы принимаются через
+Telegram-бота (`t.me/ConnectUI_bot`).
 
-The entire product is a **single, self-contained static HTML file**. There is no
-build step, no framework, no backend, no package manager, and no dependencies to
-install.
+Весь продукт — это **один самодостаточный статический HTML-файл**. Нет шага
+сборки, фреймворка, бэкенда, менеджера пакетов и зависимостей, которые нужно
+устанавливать.
 
-## Repository layout
+## Структура репозитория
 
 ```
 ConnectUs/
-├── ConnectUs.html   # The entire site: HTML + inline CSS + inline JS + base64 images
-├── README.md        # Placeholder (just the project name)
-└── CLAUDE.md         # This file
+├── ConnectUs.html   # Весь сайт: HTML + встроенный CSS + встроенный JS + base64-изображения
+├── README.md        # Заглушка (только название проекта)
+└── CLAUDE.md         # Этот файл
 ```
 
-- **`ConnectUs.html`** (~738 KB, ~395 lines) is the whole application. Its size
-  comes almost entirely from ~23 base64-encoded `WebP`/image data URIs embedded
-  directly in the markup (product photos, gallery, logos, section art). The
-  actual hand-written HTML/CSS/JS is small.
+- **`ConnectUs.html`** (~738 КБ, ~395 строк) — это всё приложение целиком. Такой
+  размер почти полностью обусловлен ~23 изображениями в формате `WebP`/data URI,
+  закодированными в base64 и встроенными прямо в разметку (фото товаров, галерея,
+  логотипы, оформление секций). Собственно рукописного HTML/CSS/JS немного.
 
-## Architecture of `ConnectUs.html`
+## Архитектура `ConnectUs.html`
 
-Everything lives in one file, in this order:
+Всё находится в одном файле в таком порядке:
 
-1. **`<head>`** — meta tags, a base64 favicon, Google Fonts preconnect + the
-   `IBM Plex Sans` stylesheet, and one large inline `<style>` block.
-2. **Inline CSS** (`<style>`, ~lines 12–181) — all styling. Uses CSS custom
-   properties defined in `:root` (`--bg`, `--txt`, `--panel`, `--r`, etc.) for a
-   light-background / dark-panel theme. Layout is CSS grid + flexbox, fully
-   responsive via `@media` breakpoints at `820px` and `430px`.
-3. **`<body>`** markup (~lines 183–344), section by section:
-   - `nav.bar` — sticky top bar with brand + language switcher (UA/RU/EN).
-   - `header.hero` — headline, subcopy, CTAs to the Telegram bot.
-   - `section.demo` — interactive "tap" phone demo (`#tap` / `#mini`).
-   - `section#products` — product cards (`.card`) and niche blocks (`.niche`).
-   - `section#gallery` — grid of client-work images.
-   - Google-reviews value section with an animated `+30` counter (`.gnum`).
-   - `section.fin` — final CTA. `footer` — copyright + social links.
-4. **Inline JS** (`<script>`, ~lines 346–393) — no libraries. Three concerns:
-   - **Tap demo**: clicking `#tap` reveals the mini-site menu for 6 seconds.
-   - **i18n / language switch** (see below).
-   - **Scroll reveal + counter**: `IntersectionObserver` adds `.in` to `.rv`
-     elements; the `+30` number counts up when the Google block scrolls in.
+1. **`<head>`** — meta-теги, favicon в base64, preconnect к Google Fonts +
+   подключение шрифта `IBM Plex Sans`, и один большой встроенный блок `<style>`.
+2. **Встроенный CSS** (`<style>`, ~строки 12–181) — вся стилизация. Использует
+   CSS-переменные, объявленные в `:root` (`--bg`, `--txt`, `--panel`, `--r` и
+   т.д.), для светлого фона / тёмных панелей. Вёрстка на CSS grid + flexbox,
+   полностью адаптивная через `@media` с брейкпоинтами на `820px` и `430px`.
+3. **Разметка `<body>`** (~строки 183–344), по секциям:
+   - `nav.bar` — прилипающая верхняя панель с брендом и переключателем языков
+     (UA/RU/EN).
+   - `header.hero` — заголовок, подзаголовок, CTA-кнопки на Telegram-бота.
+   - `section.demo` — интерактивная демонстрация «прикосновения» с телефоном
+     (`#tap` / `#mini`).
+   - `section#products` — карточки товаров (`.card`) и блоки ниш (`.niche`).
+   - `section#gallery` — сетка изображений работ для клиентов.
+   - Секция ценности отзывов Google с анимированным счётчиком `+30` (`.gnum`).
+   - `section.fin` — финальный CTA. `footer` — копирайт и соцсети.
+4. **Встроенный JS** (`<script>`, ~строки 346–393) — без библиотек. Три задачи:
+   - **Демо-прикосновение**: клик по `#tap` показывает меню мини-сайта на 6 секунд.
+   - **i18n / переключение языка** (см. ниже).
+   - **Появление при скролле + счётчик**: `IntersectionObserver` добавляет класс
+     `.in` к элементам `.rv`; число `+30` анимируется, когда блок Google попадает
+     в область видимости.
 
-## Internationalization (important convention)
+## Интернационализация (важное соглашение)
 
-The site supports three languages: **Ukrainian (default), Russian, English.**
+Сайт поддерживает три языка: **украинский (по умолчанию), русский, английский.**
 
-- Every translatable element carries a **`data-i="<key>"`** attribute. The
-  Ukrainian text is written directly in the HTML as the base copy.
-- Translations live in the JS `D` object: `D.ua` is empty (`{}`) because UA is
-  the base; `D.ru` and `D.en` map each `data-i` key to translated `innerHTML`.
-- On page load, the original HTML for each `data-i` element is cached in
-  `bgTexts`. Clicking a `.langs` button (`data-lang="ua|ru|en"`) rewrites every
-  `[data-i]` element's `innerHTML` to `D[lang][key] ?? bgTexts[key]` and updates
-  `document.documentElement.lang`.
+- Каждый переводимый элемент имеет атрибут **`data-i="<ключ>"`**. Украинский текст
+  написан прямо в HTML как базовый.
+- Переводы хранятся в JS-объекте `D`: `D.ua` пустой (`{}`), потому что UA — базовый
+  язык; `D.ru` и `D.en` сопоставляют каждый ключ `data-i` с переведённым
+  `innerHTML`.
+- При загрузке страницы исходный HTML каждого элемента с `data-i` кэшируется в
+  `bgTexts`. Клик по кнопке `.langs` (`data-lang="ua|ru|en"`) переписывает
+  `innerHTML` каждого элемента `[data-i]` в `D[lang][key] ?? bgTexts[key]` и
+  обновляет `document.documentElement.lang`.
 
-**When you add or edit any user-facing text:**
-1. Give the element a unique `data-i` key.
-2. Write the Ukrainian copy inline in the HTML.
-3. Add matching entries under **both** `D.ru` and `D.en` in the script, or the
-   language switch will fall back to the Ukrainian base text for that key.
-4. Note: some translation values contain inline HTML (e.g. `<em>`, `<b>`); keep
-   markup consistent across languages since it is assigned via `innerHTML`.
+**Когда добавляете или изменяете любой видимый пользователю текст:**
+1. Дайте элементу уникальный ключ `data-i`.
+2. Напишите украинский текст прямо в HTML.
+3. Добавьте соответствующие записи в **оба** объекта `D.ru` и `D.en` в скрипте,
+   иначе переключатель языка для этого ключа откатится к украинскому базовому
+   тексту.
+4. Учтите: некоторые значения переводов содержат встроенный HTML (например,
+   `<em>`, `<b>`); сохраняйте разметку одинаковой во всех языках, так как значение
+   присваивается через `innerHTML`.
 
-(Historical quirk: the switch code contains a leftover `L==='bg'` branch that is
-never reached — the buttons only emit `ua`/`ru`/`en`. Leave it or remove it, but
-don't rely on a `bg` language existing.)
+(Историческая особенность: в коде переключателя есть неиспользуемая ветка
+`L==='bg'`, которая никогда не срабатывает — кнопки выдают только `ua`/`ru`/`en`.
+Можно оставить или удалить, но не рассчитывайте на существование языка `bg`.)
 
-## Conventions & style
+## Соглашения и стиль
 
-- **Language of the source/UI is Ukrainian.** Copy, comments, and `aria-label`s
-  are in Ukrainian (`<html lang="uk">`). Preserve this.
-- **Keep it single-file and dependency-free.** Do not introduce a build tool,
-  bundler, framework, or npm package unless explicitly asked. New CSS goes in the
-  existing `<style>` block; new JS in the existing `<script>` block.
-- **Images are inline base64 data URIs.** Product/gallery images are referenced
-  by element IDs (e.g. `#pimg-smartcard`, `#pimg-keychain`, `#pimg-bundle`) and
-  set via CSS `background`. Editing/replacing an image means swapping a large
-  base64 string — expect very long lines. Prefer WebP to keep size down.
-- **Accessibility & motion**: the site respects `prefers-reduced-motion`
-  (animations disabled) and uses `:focus-visible` outlines, `aria-label`s, and
-  semantic sections. Maintain these when editing.
-- **Order/CTA links** all point to the Telegram bot with a start payload, e.g.
+- **Язык исходника/интерфейса — украинский.** Тексты, комментарии и `aria-label`
+  на украинском (`<html lang="uk">`). Сохраняйте это.
+- **Держите проект однофайловым и без зависимостей.** Не вводите инструменты
+  сборки, бандлеры, фреймворки или npm-пакеты без явной просьбы. Новый CSS — в
+  существующий блок `<style>`; новый JS — в существующий блок `<script>`.
+- **Изображения — это встроенные base64 data URI.** Фото товаров/галереи
+  привязаны к ID элементов (например, `#pimg-smartcard`, `#pimg-keychain`,
+  `#pimg-bundle`) и задаются через CSS `background`. Замена изображения означает
+  замену большой base64-строки — будут очень длинные строки. Предпочитайте WebP,
+  чтобы не раздувать размер.
+- **Доступность и анимация**: сайт учитывает `prefers-reduced-motion` (анимации
+  отключаются), использует `:focus-visible`, `aria-label` и семантические секции.
+  Сохраняйте это при редактировании.
+- **Ссылки заказа/CTA** ведут на Telegram-бота с параметром start, например
   `https://t.me/ConnectUI_bot?start=magnet` (`order`, `magnet`, `card`,
-  `keychain`, `pack`). Reuse this pattern for new CTAs.
-- **Styling tokens**: reuse the `:root` CSS variables and existing class
-  patterns (`.cta`, `.card`, `.niche`, `.eyebrow`, `.h2`, `.wrap`) rather than
-  inventing new one-off styles.
+  `keychain`, `pack`). Используйте этот же шаблон для новых CTA.
+- **Токены стилей**: переиспользуйте CSS-переменные из `:root` и существующие
+  классы (`.cta`, `.card`, `.niche`, `.eyebrow`, `.h2`, `.wrap`), а не создавайте
+  разовые стили.
 
-## Developing & previewing
+## Разработка и предпросмотр
 
-There is no build or test step. To preview changes, open the file directly:
+Шага сборки или тестов нет. Чтобы посмотреть изменения, откройте файл напрямую:
 
 ```bash
-# open ConnectUs.html in a browser, e.g.
+# открыть ConnectUs.html в браузере, например:
 xdg-open ConnectUs.html      # Linux
 open ConnectUs.html          # macOS
 
-# or serve it locally
-python3 -m http.server 8000  # then visit http://localhost:8000/ConnectUs.html
+# или поднять локальный сервер
+python3 -m http.server 8000  # затем открыть http://localhost:8000/ConnectUs.html
 ```
 
-**Manual verification checklist after edits:**
-- Page loads with no console errors.
-- Language switch (UA/RU/EN) swaps all `[data-i]` text correctly.
-- Tap demo (`#tap`) reveals and re-hides the mini menu.
-- Scroll-reveal animations fire and the `+30` counter animates.
-- Layout holds at desktop and mobile widths (test ≤820px and ≤430px).
+**Чек-лист ручной проверки после изменений:**
+- Страница загружается без ошибок в консоли.
+- Переключение языков (UA/RU/EN) корректно меняет весь текст `[data-i]`.
+- Демо-прикосновение (`#tap`) показывает и снова скрывает мини-меню.
+- Анимации появления при скролле срабатывают, счётчик `+30` анимируется.
+- Вёрстка держится на десктопе и мобильных (проверьте ≤820px и ≤430px).
 
-## Git workflow
+## Работа с Git
 
-- Active development branch for this work: **`claude/claude-md-docs-xfi0yv`**.
-  Develop, commit, and push there; create it from `main` if needed.
-- Push with `git push -u origin claude/claude-md-docs-xfi0yv`.
-- Do **not** push to `main` or open a pull request unless explicitly asked.
-- Keep commit messages clear and descriptive.
+- Рабочая ветка для этой задачи: **`claude/claude-md-docs-xfi0yv`**. Разрабатывайте,
+  коммитьте и пушьте в неё; при необходимости создайте её от `main`.
+- Пуш: `git push -u origin claude/claude-md-docs-xfi0yv`.
+- **Не** пушьте в `main` и не открывайте pull request без явной просьбы.
+- Пишите понятные и описательные сообщения коммитов.
