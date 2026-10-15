@@ -1,0 +1,5 @@
+# Local-only files of the ukrainian-germany-ai rebuild (originals live in Lovable; see HANDOFF.md)
+ukrainian-germany-ai/.env
+ukrainian-germany-ai/package-lock.json
+ukrainian-germany-ai/src/components/ui/
+ukrainian-germany-ai/src/assets/*.jpg
