@@ -1,0 +1,15 @@
+import { ArrowUpRight, Newspaper } from 'lucide-react';
+import { useLetter } from './LetterContext';
+import { EditorialPhoto } from './EditorialPhoto';
+import { publicationPhotos } from '@/lib/editorial-photos';
+import { OFFICIAL_SOURCES, sourceConfig, sourceCopy, readSourceSections } from '@/lib/official-sources';
+export function OfficialSourceSections({ payload }: { payload: unknown }) {
+  const { lang } = useLetter(); const t = sourceCopy[lang]; const sections = readSourceSections(payload);
+  return <section className="space-y-4 border-t pt-6"><h2 className="flex items-center gap-2 text-xl font-bold"><Newspaper className="h-5 w-5" />{t.title}</h2>
+    {OFFICIAL_SOURCES.map(source => { const data = sections.find(s => s.source === source); const config = sourceConfig[source]; return <section key={source} aria-label={config.name} className="space-y-3">
+      <header className="grid min-w-0 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"><div className="min-w-0 rounded-xl border border-border bg-secondary p-4"><h3 className="text-lg font-bold">{config.name}</h3><p className="text-sm text-muted-foreground">{t[source]}</p></div><a href={config.url} target="_blank" rel="noopener noreferrer" aria-label={`${t.open} ${config.name}`} className="inline-flex min-h-12 min-w-0 items-center justify-center gap-2 break-all rounded-xl border border-border bg-secondary px-4 text-sm underline">{config.domain}<ArrowUpRight className="h-4 w-4" /></a></header>
+      {data && <p className="w-fit rounded-lg border border-border bg-secondary px-3 py-2 text-xs text-muted-foreground">{t.checked}: <time dateTime={data.checkedDay}>{data.checkedDay}</time></p>}
+      {!data ? <p className="rounded-xl border border-border bg-secondary p-4 text-sm text-muted-foreground">{t.waiting}</p> : data.status === 'unavailable' ? <p role="status" className="rounded-xl border border-border bg-secondary p-4 text-sm text-muted-foreground">{t.unavailable}</p> : data.articles.length === 0 ? <p className="rounded-xl border border-border bg-secondary p-4 text-sm text-muted-foreground">{t.empty}</p> : (() => { const photos = publicationPhotos(data.articles.map(a => `${a.title} ${a.summary}`)); return <div className="grid items-start gap-5 md:grid-cols-2 lg:grid-cols-3">{data.articles.map((a, i) => <article key={a.url} className="letter-card overflow-hidden"><EditorialPhoto src={photos[i]!} alt={a.title} lang={lang} /><div className="p-5"><p className="mb-2 text-xs text-muted-foreground">{t[a.kind]}{a.date && !Number.isNaN(Date.parse(a.date)) ? ` · ${new Intl.DateTimeFormat(lang === 'UK' ? 'uk-UA' : lang === 'RU' ? 'ru-RU' : 'de-DE').format(new Date(a.date))}` : ''}</p><h4 className="font-bold">{a.title}</h4><p className="mt-2 text-sm leading-relaxed">{a.summary}</p><a href={a.url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex min-h-12 items-center gap-2 text-sm underline">{t.open}<ArrowUpRight className="h-4 w-4 shrink-0" /></a></div></article>)}</div>; })()}
+    </section>; })}
+  </section>;
+}
